@@ -1,11 +1,13 @@
-<script setup lang="ts"></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <n-config-provider :locale="zhCN" :date-locale="dateZhCN">
+    <router-view></router-view>
+  </n-config-provider>
 </template>
 
-<style scoped></style>
+<script setup lang="ts">
+// 导入 Naive UI 的配置组件和中文语言包
+import { NConfigProvider } from 'naive-ui'
+import { zhCN, dateZhCN } from 'naive-ui'
+</script>
+
+<style></style>
