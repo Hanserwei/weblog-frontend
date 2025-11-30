@@ -79,10 +79,12 @@ import { PersonOutline, LockClosedOutline } from '@vicons/ionicons5'
 import { reactive, ref } from 'vue'
 import { setToken } from '@/composables/auth'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import type { FormInst, FormValidationError } from 'naive-ui'
 
 const router = useRouter()
 const loading = ref<boolean>(false)
+const userStore = useUserStore()
 
 // 定义响应式表单对象
 const form = reactive({
@@ -123,12 +125,13 @@ const onSubmit = (e: MouseEvent | KeyboardEvent) => {
       login(form.username, form.password)
         .then((res) => {
           console.log(res)
-          const { success, data } = res.data
+          const { success, data } = res
           if (success) {
             const token = data?.token
             if (token) {
               setToken(token)
             }
+            userStore.setUserInfo()
             router.push('/admin/index')
           }
         })

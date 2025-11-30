@@ -46,7 +46,7 @@
           class="flex items-center cursor-pointer rounded-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors"
         >
           <n-avatar round size="small" src="https://avatars.githubusercontent.com/u/78295104?v=4" />
-          <span class="ml-2 font-medium">Admin</span>
+          <span class="ml-2 font-medium">{{ userStore.userInfo?.username }}</span>
           <n-icon class="ml-1">
             <ChevronDown />
           </n-icon>
@@ -62,7 +62,9 @@ import { NIcon, NDropdown, NAvatar, useMessage } from 'naive-ui'
 import { computed } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const message = useMessage()
 const route = useRoute()
 

@@ -9,10 +9,11 @@ import router from './router'
 import './assets/tailwind.css'
 import 'nprogress/nprogress.css'
 import 'flowbite'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 const app = createApp(App)
 
-app.use(createPinia())
+app.use(createPinia().use(piniaPluginPersistedstate))
 app.use(router)
 
 app.mount('#app')
