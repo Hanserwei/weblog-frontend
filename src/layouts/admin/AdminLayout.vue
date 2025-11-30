@@ -46,16 +46,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NLayoutFooter } from 'naive-ui'
+import { storeToRefs } from 'pinia'
 
 // 引入自定义组件
 import AdminFooter from './components/AdminFooter.vue'
 import AdminHeader from './components/AdminHeader.vue'
 import AdminMenu from './components/AdminMenu.vue'
 import AdminTagList from './components/AdminTagList.vue'
+import { useLayoutStore } from '@/stores/layout'
 
-const collapsed = ref(false)
+const layoutStore = useLayoutStore()
+const { collapsed } = storeToRefs(layoutStore)
 </script>
 
 <style scoped>

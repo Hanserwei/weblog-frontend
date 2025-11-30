@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { removeToken } from '@/composables/auth'
 import { getUserInfo, type FindUserInfoResponse } from '@/api/admin/user'
 
 export const useUserStore = defineStore(
@@ -19,7 +20,15 @@ export const useUserStore = defineStore(
       })
     }
 
-    return { userInfo, setUserInfo }
+    // 退出登录
+    function logout() {
+      // 删除 cookie 中的 token 令牌
+      removeToken()
+      // 删除登录用户信息
+      userInfo.value = null
+    }
+
+    return { userInfo, setUserInfo, logout }
   },
   {
     persist: true,
