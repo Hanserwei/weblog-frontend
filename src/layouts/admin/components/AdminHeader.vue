@@ -1,18 +1,29 @@
 <template>
   <div
-    class="h-16 flex items-center px-5 justify-between border-b bg-white/80 backdrop-blur dark:bg-[#18181c]/90 dark:border-gray-800 border-gray-200 text-slate-900 dark:text-gray-100 transition-colors duration-300"
+    class="admin-header h-16 flex items-center px-5 justify-between border-b transition-colors duration-300"
   >
     <div class="flex items-center gap-2">
-      <span class="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Admin</span>
-      <span class="w-px h-4 bg-gray-300 dark:bg-gray-600"></span>
-      <span class="text-base font-semibold">{{ pageTitle }}</span>
+      <span
+        class="text-sm uppercase tracking-wide transition-colors"
+        :style="{ color: themeVars.textColor3 }"
+        >Admin</span
+      >
+      <span
+        class="w-px h-4 transition-colors"
+        :style="{ backgroundColor: themeVars.dividerColor }"
+      ></span>
+      <span
+        class="text-base font-semibold transition-colors"
+        :style="{ color: themeVars.textColor1 }"
+        >{{ pageTitle }}</span
+      >
     </div>
 
     <div class="flex items-center gap-4">
       <n-tooltip placement="bottom">
         <template #trigger>
           <button
-            class="flex items-center gap-1 rounded-full px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+            class="toolbar-btn flex items-center gap-1 rounded-full px-3 py-1 text-sm border transition-colors"
             @click="handleRefresh"
           >
             <n-icon size="18"><RefreshOutline /></n-icon>
@@ -25,7 +36,7 @@
       <n-tooltip trigger="hover">
         <template #trigger>
           <button
-            class="flex items-center gap-1 rounded-full px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+            class="toolbar-btn flex items-center gap-1 rounded-full px-3 py-1 text-sm border transition-colors"
             @click="toggle"
           >
             <n-icon size="18"
@@ -39,11 +50,13 @@
 
       <n-dropdown :options="dropdownOptions" @select="handleSelect">
         <div
-          class="flex items-center cursor-pointer rounded-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors"
+          class="user-trigger flex items-center cursor-pointer rounded-full px-2 py-1 transition-colors"
         >
           <n-avatar round size="small" src="https://avatars.githubusercontent.com/u/78295104?v=4" />
-          <span class="ml-2 font-medium">{{ userStore.userInfo?.username || 'Admin' }}</span>
-          <n-icon class="ml-1"><ChevronDown /></n-icon>
+          <span class="ml-2 font-medium" :style="{ color: themeVars.textColor2 }">{{
+            userStore.userInfo?.username || 'Admin'
+          }}</span>
+          <n-icon class="ml-1" :style="{ color: themeVars.textColor3 }"><ChevronDown /></n-icon>
         </div>
       </n-dropdown>
     </div>
@@ -102,6 +115,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import router from '@/router'
 import { ExpandOutline, ContractOutline, ChevronDown, RefreshOutline } from '@vicons/ionicons5'
 import {
   NIcon,
@@ -114,71 +130,57 @@ import {
   NFormItem,
   NInput,
   NButton,
+  useThemeVars, // <--- 新增引入
   type FormInst,
   type FormRules,
 } from 'naive-ui'
-import { computed, ref, reactive } from 'vue'
 import { useFullscreen } from '@vueuse/core'
-import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { updateAdminPassword, type UpdateAdminUserPasswordRequest } from '@/api/admin/user'
-import router from '@/router'
+
+// --- 获取 Naive UI 主题变量 ---
+const themeVars = useThemeVars()
 
 const userStore = useUserStore()
 const message = useMessage()
 const dialog = useDialog()
 const route = useRoute()
 
-// --- 弹窗相关状态 ---
+// ==========================================
+// part 1: 修改密码弹窗逻辑 (保持不变)
+// ==========================================
 const showPasswordModal = ref(false)
 const formRef = ref<FormInst | null>(null)
-
-// 表单数据模型
 const formModel = reactive<UpdateAdminUserPasswordRequest>({
   username: '',
   password: '',
   rePassword: '',
 })
-
-// 表单校验规则
 const rules: FormRules = {
   username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
   password: [{ required: true, message: '密码不能为空', trigger: 'blur' }],
   rePassword: [
     { required: true, message: '确认密码不能为空', trigger: ['input', 'blur'] },
     {
-      validator: (rule, value) => {
-        return value === formModel.password
-      },
+      validator: (rule, value) => value === formModel.password,
       message: '两次输入密码不一致',
-      trigger: ['input', 'blur'], // 输入时也实时校验
+      trigger: ['input', 'blur'],
     },
   ],
 }
-
-// 打开弹窗
 const openChangePasswordModal = () => {
-  // 1. 获取当前用户名
   formModel.username = userStore.userInfo?.username || '未知用户'
-  // 2. 清空之前的密码输入
   formModel.password = ''
   formModel.rePassword = ''
-  // 3. 打开弹窗
   showPasswordModal.value = true
 }
-
-// 关闭弹窗
 const closeModal = () => {
   showPasswordModal.value = false
 }
-
-// 提交逻辑
 const handlePasswordSubmit = (e: MouseEvent) => {
   e.preventDefault()
   formRef.value?.validate(async (errors) => {
     if (!errors) {
-      // TODO: 在这里调用后端修改密码接口
-      // const res = await api.changePassword(...)
       const res = await updateAdminPassword(formModel)
       if (res.success) {
         message.success('密码修改成功，请重新登录！')
@@ -187,18 +189,18 @@ const handlePasswordSubmit = (e: MouseEvent) => {
       }
       closeModal()
     } else {
-      console.log(errors)
       message.error('请检查输入内容')
     }
   })
 }
 
-// --- 下拉菜单逻辑 ---
+// ==========================================
+// part 2: 用户下拉菜单逻辑 (保持不变)
+// ==========================================
 const dropdownOptions = [
   { label: '修改密码', key: 'change_password' },
   { label: '退出登录', key: 'logout' },
 ]
-
 const handleSelect = (key: string) => {
   if (key === 'logout') {
     dialog.warning({
@@ -209,16 +211,49 @@ const handleSelect = (key: string) => {
       onPositiveClick: () => {
         userStore.logout()
         message.success('已退出登录')
+        router.push('/login')
       },
     })
   } else if (key === 'change_password') {
-    openChangePasswordModal() // 调用打开弹窗方法
+    openChangePasswordModal()
   }
 }
 
-// --- 其他通用逻辑 (全屏/刷新) ---
+// ==========================================
+// part 3: 通用工具栏逻辑 (保持不变)
+// ==========================================
 const { isFullscreen, toggle } = useFullscreen()
+const fullscreenText = computed(() => (isFullscreen.value ? '退出全屏' : '全屏展开'))
 const handleRefresh = () => window.location.reload()
 const pageTitle = computed(() => (route.meta.title as string) || '后台管理')
-const fullscreenText = computed(() => (isFullscreen.value ? '退出全屏' : '全屏展开'))
 </script>
+
+<style scoped>
+/* 使用 Vue 3 的 CSS v-bind 特性
+  直接将 Naive UI 的主题变量绑定到 CSS 属性中
+*/
+.admin-header {
+  background-color: v-bind('themeVars.bodyColor');
+  border-bottom-color: v-bind('themeVars.dividerColor');
+}
+
+/* 工具栏按钮样式 */
+.toolbar-btn {
+  /* 使用组件通用边框色 */
+  border-color: v-bind('themeVars.borderColor');
+  /* 使用二级文本色 */
+  color: v-bind('themeVars.textColor2');
+}
+
+.toolbar-btn:hover {
+  /* 使用 Naive UI 标准的悬浮背景色 */
+  background-color: v-bind('themeVars.hoverColor');
+  /* 悬浮时文本色稍微变亮一点，使用一级文本色 */
+  color: v-bind('themeVars.textColor1');
+}
+
+/* 用户触发器样式 */
+.user-trigger:hover {
+  background-color: v-bind('themeVars.hoverColor');
+}
+</style>

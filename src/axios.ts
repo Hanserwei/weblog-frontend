@@ -12,6 +12,17 @@ export interface ApiResponse<T = unknown> {
   code?: number
 }
 
+export interface PageResponse<T> {
+  success: boolean
+  message: string | null
+  errorCode: number | string | null
+  data: T[] // 分页接口的数据部分一定是数组
+  total: number // 总条数
+  size: number // 每页大小
+  current: number // 当前页
+  pages: number // 总页数
+}
+
 const instance = axios.create({
   baseURL: '/api',
   timeout: 7000,

@@ -35,7 +35,7 @@ import { NTabs, NTabPane, NDropdown, NIcon } from 'naive-ui'
 import { ChevronDown } from '@vicons/ionicons5'
 import type { DropdownOption } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
-import { getTabList, setTabList, type ITabItem } from '@/composables/tag-list' // 请根据实际路径修改
+import { getTabList, setTabList, type ITabItem } from '@/composables/tag-list'
 
 const route = useRoute()
 const router = useRouter()
