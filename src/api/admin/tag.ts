@@ -25,7 +25,7 @@ export interface SearchTagReqVO {
   key: string
 }
 
-export interface SelectRspVO {
+export interface SelectTagRspVO {
   /**
    * Select 下拉列表的展示文字
    */
@@ -33,7 +33,25 @@ export interface SelectRspVO {
   /**
    * Select 下拉列表的 value 值，如 ID 等
    */
-  value?: string
+  value?: number
+}
+
+export interface FindTagsByIdsRspVO {
+  /**
+   * 标签 ID
+   */
+  id?: number
+  /**
+   * 标签名称
+   */
+  name?: string
+}
+
+export interface FindTagsByIdsReqVO {
+  /**
+   * 标签 ID 集合
+   */
+  tagIds: number[]
 }
 
 // 获取分类分页数据
@@ -53,5 +71,10 @@ export function deleteTag(id: DeleteTagReqVO) {
 
 // 标签模糊查询
 export function searchTag(key: SearchTagReqVO) {
-  return axios.post<unknown, ApiResponse<SelectRspVO>>('/admin/tag/search', key)
+  return axios.post<unknown, ApiResponse<SelectTagRspVO[]>>('/admin/tag/search', key)
+}
+
+// 根据ID列表查询标签
+export function findTagsByIds(data: FindTagsByIdsReqVO) {
+  return axios.post<unknown, ApiResponse<FindTagsByIdsRspVO[]>>('/admin/tag/list/ids', data)
 }

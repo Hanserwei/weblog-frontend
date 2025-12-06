@@ -21,7 +21,7 @@ export interface PublishArticleReqVO {
   /**
    * 文章标签列表
    */
-  tags: string[]
+  tags: (string | number)[]
   /**
    * 文章标题
    */
@@ -131,7 +131,7 @@ export interface UpdateArticleReqVO {
   /**
    * 文章标签列表
    */
-  tags: string[]
+  tags: (string | number)[]
   /**
    * 文章标题
    */

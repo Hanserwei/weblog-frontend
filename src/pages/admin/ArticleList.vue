@@ -48,6 +48,11 @@
           写文章
         </n-button>
       </div>
+      <ArticlePublish
+        v-model:visible="showPublishModal"
+        @success="handlePublishSuccess"
+        :articleId="updateArticleId"
+      />
 
       <n-data-table
         :columns="columns"
@@ -75,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import ArticlePublish from '@/layouts/admin/components/ArticlePublish.vue'
 import { ref, h, onMounted } from 'vue'
 import moment from 'moment'
 import {
@@ -105,6 +111,9 @@ const dialog = useDialog()
 
 // ================= 状态定义 (State) =================
 
+const showPublishModal = ref(false)
+const updateArticleId = ref<number | null>(null)
+
 // --- 搜索条件 ---
 const searchTitle = ref<string>('')
 const pickDate = ref<[number, number] | null>(null)
@@ -119,7 +128,6 @@ const tableLoading = ref(false)
 // ================= 常量与配置 (Config) =================
 
 // 日期快捷选项
-// 修复点：显式指定返回类型为 [number, number] 或使用 as const
 const rangeShortcuts = {
   最近一周: (): [number, number] => {
     const end = moment().endOf('day').valueOf()
@@ -233,11 +241,15 @@ const handlePageSizeChange = (pageSize: number) => {
 }
 
 const handleWriteArticle = () => {
-  message.info('点击了写文章，功能开发中...')
+  updateArticleId.value = null
+  showPublishModal.value = true
 }
 
 const handleEdit = (row: FindArticlePageListRspVO) => {
-  message.info(`点击了编辑文章：ID ${row.id}`)
+  if (row.id) {
+    updateArticleId.value = row.id
+    showPublishModal.value = true
+  }
 }
 
 const handleDelete = (row: FindArticlePageListRspVO) => {
@@ -288,6 +300,12 @@ function getTableData() {
     .finally(() => {
       tableLoading.value = false
     })
+}
+
+// 发布成功后的回调
+const handlePublishSuccess = () => {
+  // 刷新列表
+  getTableData()
 }
 
 // ================= 生命周期 (Lifecycle) =================
