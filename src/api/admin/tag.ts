@@ -13,12 +13,27 @@ export interface FindTagPageListRspVO {
   createTime: string
 }
 
-interface AddTagReqVO {
+export interface AddTagReqVO {
   tags: string[]
 }
 
-interface DeleteTagReqVO {
+export interface DeleteTagReqVO {
   id: number
+}
+
+export interface SearchTagReqVO {
+  key: string
+}
+
+export interface SelectRspVO {
+  /**
+   * Select 下拉列表的展示文字
+   */
+  label?: string
+  /**
+   * Select 下拉列表的 value 值，如 ID 等
+   */
+  value?: string
 }
 
 // 获取分类分页数据
@@ -34,4 +49,9 @@ export function addTag(data: AddTagReqVO) {
 // 删除分类
 export function deleteTag(id: DeleteTagReqVO) {
   return axios.post<unknown, ApiResponse<unknown>>('/admin/tag/delete', id)
+}
+
+// 标签模糊查询
+export function searchTag(key: SearchTagReqVO) {
+  return axios.post<unknown, ApiResponse<SelectRspVO>>('/admin/tag/search', key)
 }
